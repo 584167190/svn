@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="echarts.js"></script>
+    <script src="china.js"></script>
+    <script>
+        function bar(){
+            //创建 echarts对象
+            var chart = echarts.init(document.getElementById("first"));
+            //数据
+            var option={
+                xAxis:{
+                    data:["一月","二月","三月"]
+                },
+                yAxis:{},
+                series:{
+                    type:"bar",//柱形表
+                    data:[3000,2000,5000]
+                }
+            };
+            chart.setOption(option)
+        }
+        function pie(){
+            var chart = echarts.init(document.getElementById("first"));
+            var option = {
+                //提示
+                tooltip:{
+                    trigger:"item",
+                    formatter:"{b}<br/>{c}"
+                },
+                series:{
+                    type:"pie",
+                    data:[
+                        {name:"河南",value:3000},
+                        {name:"四川",value:4000},
+                        {name:"北京",value:6000}
+                        ]
+                },
+            }
+            chart.setOption(option);
+        }
+        function draw() {
+            var cas=  document.getElementById("hua");
+            var ctx=cas.getContext("2d");
+            ctx.fillStyle="red";
+            ctx.fillRect(30,40,70,200);
+        }
+        function map() {
+            var chart=echarts.init(document.getElementById("first"));
+            var option={
+                geo:{map:"china"},
+                series:[
+                    {
+                        type:"scatter",
+                        coordinateSystem:"geo",
+                        data:[
+                            {name:"郑州",value:[113.65,34.76,300]}
+                        ]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+    </script>
+</head>
+<body>
+    <div id="first" style="margin: 40px auto;width: 300px;height: 300px;"></div>
+    <button onclick="bar()">柱状图</button>
+    <button onclick="pie()">饼状图</button>
+    <button onclick="draw()">画图</button>
+    <button onclick="map()">地图</button>
+</body>
+</html>

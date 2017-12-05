@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=BExYa1PB2W4TW9YvvtFQHzcHm4cWbRYj"></script>
+
+    <script>
+        function local() {
+            //定位
+            var x=new BMap.Geolocation();
+            //当前位置
+            x.getCurrentPosition(function (data) {
+                show(data);
+                address(data)
+            });
+        }
+        function show(p) {
+            map=new BMap.Map("first");
+            //指定默认的经纬度
+            var point=new BMap.Point(113.65,34.76);
+            if(p){
+                point=new BMap.Point(p.point.lng,p.point.lat);
+            }
+            //比例尺
+            map.centerAndZoom(point,15);
+        }
+        function address(p) {
+            var adr=new BMap.Geocoder();
+            var c=new BMap.Point(p.point.lng,p.point.lat);
+            //行政位置
+            adr.getLocation(c,function (data) {
+                alert(data.address);
+            });
+        }
+        //搜索
+        function search() {
+            var a=new BMap.LocalSearch(map,{
+                renderOptions:{map:map,autoViewport:true}
+            });
+            a.searchNearby("教育学院","纬五路");
+
+        }
+        function nav() {
+            var a=new BMap.WalkingRoute(map,{
+                renderOptions:{map:map,autoViewport:true}
+            });
+            a.search("郑州站","人民公园");
+        }
+    </script>
+</head>
+<body>
+    <div id="first" style="width: 800px;height:500px"></div>
+    <button onclick="show()">地图</button>
+    <button onclick="local()">定位</button>
+    <button onclick="search()">搜索<button>
+    <button onclick="nav()">导航<button>
+</body>
+</html>
