@@ -1,0 +1,46 @@
+
+<div class="easyui-layout" style="width: 100%;height: 100%">
+    <div  data-options="region:'west'" style="width: 200px;height: 100% ">
+        <ul id="goods_tree" data-options="url:'findCategoryTree',method:'get'" class="easyui-tree">
+
+        </ul>
+    </div>
+    <div id="goodsOfcategory"  data-options="region:'center'" >
+        <div>
+            搜索:<input  class="easyui-searchbox" style="width:100px">商品名字</input>
+           <!--商品名字:<input type="text"> <button>查询</button>-->
+
+        </div>
+        <div id="goods_search">
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function goods_init() {
+        $("#goods_tree").treegrid({
+            title: "商品类别",
+
+            method: "get",
+            idField: "id",
+            treeField: "name",
+            columns: [[
+                {field: "id", title: "序号",hidden: true},
+                {field: "name", title: "名称", width: 200}
+            ]],
+            onClickRow: function(rowIndex, rowData){
+                   var goods = $("#goods_tree").datagrid("getSelected");
+                   alert(goods.name);
+                    $("#goodsOfcategory").tabs("add",{
+                        title:goods.name,
+                        closable:true,
+                        /*href:node.url*/
+                    });
+
+            }
+        });
+
+    }
+        $(goods_init)
+</script>

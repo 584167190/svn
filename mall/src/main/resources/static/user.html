@@ -1,0 +1,146 @@
+
+    <div id="first"></div>
+     <!--弹出窗口-->
+     <div id="window_user_add" class="easyui-window" data-options="closed:true,modal:true" style="width:300px;height:400px;">
+
+         <form id="form_user_add" action="saveUser">
+
+             <input type="hidden" name="id" />
+             账号<input name="account" class="textbox"/><br>
+             密码<input name="pwd" type="password"   class="textbox passwordbox-open"/><br>
+             角色<select name="name">
+                 <option value="超级管理员">超级管理员</option>
+                 <option value="订单管理员">订单管理员</option>
+                 <option value="商品管理员">商品管理员</option>
+                 <option value="售后管理员">售后管理员</option>
+                 </select><br>
+             部门<select name="deptname">
+                 <option value="人事部">人事部</option>
+                 <option value="销售部">销售部</option>
+                 <option value="开发部">开发部</option>
+                 <option value="行政部">行政部</option>
+                 </select><br>
+
+         </form>
+         <div>
+             <button onclick="save()">保存</button>
+         </div>
+     </div>
+
+
+    <script>
+        //首先加载数据的总条数,赋值给countUser
+        var countUser = 0;
+        function getCount(){
+            $.get("getCount",function (count) {
+                countUser = count;
+
+            });
+        }
+        getCount();
+
+        function init_user() {
+            $("#first").datagrid({
+                title:"用户管理",
+                /*url:"findUserAndRole",*/
+                method:"get",
+                pagination:true,
+                columns:[[
+                    {field:"id",checkbox:true},
+                    {field:"account",title:"账号",width:200},
+                    {field:"pwd",title:"密码",width:200},
+                    {field:"name",title:"角色",width:200}
+
+                ]],
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){tempUser();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function(){toEdit();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function(){deleteUser();}}
+                ]
+            });
+            loadUser(1,3);
+        }
+        //分页数据
+        function loadUser(page,size){
+            $.get("userPagination",{page:page,size:size},function(data){
+                $("#first").datagrid("loadData",data);
+                var pager = $("#first").datagrid("getPager");
+                pager.pagination({
+                    total:countUser,
+                    pageNumber:page,
+                    pageSize:size,
+                    pageList:[3,6,9],
+                    onSelectPage:function(a,b){
+                        loadUser(a,b);
+                    }
+                });
+            });
+        }
+        //页面渲染完毕再调用
+        /*$(init_user);*/
+        init_user();
+        function tempUser() {
+            $("#form_user_add").form("load",{
+                id:0,
+                account:"",
+                pwd:"",
+            });
+            $("#window_user_add").window("open");
+        }
+        function save() {
+            //提交到saveUser
+            $("#form_user_add").form("submit",{
+                success:function(d){
+                    init_user();
+                    $("#first").datagrid("reload");
+                    $("#window_user_add").window("close");
+                }
+            });
+        }
+        //删除用户
+        function deleteUser(){
+            var users = $("#first").datagrid("getSelections");
+            var ars = [];
+
+            for (var i=0;i<users.length;i++){
+                ars[i] = users[i].id;
+            }
+            /*alert(typeof(ars));*/
+            var json = JSON.stringify(ars);
+            /*alert(typeof(json));*/
+            if(ars.length == 0){
+                $.messager.alert("系统提示","没有勾选要删除的对象");
+            } else {
+                $.ajax({
+                    url:"deleteUser",
+                    method:"post",
+                    data:json,
+                    contentType:"application/json",
+                    success:function(d){
+                        $("#first").datagrid("reload");
+
+                    }
+                })
+            }
+
+        }
+        //修改用户信息
+        function toEdit(){
+            var user = $("#first").datagrid("getSelected");
+
+            if(user){
+                $("#form_user_add").form("load",{
+                    id:user.id,
+                    account:user.account,
+                    pwd:user.pwd,
+                    name:user.name
+                });
+                $("#window_user_add").window("open");
+            } else {
+                $.messager.alert("系统提示","请选择一条数据");
+            }
+
+
+
+        }
+    </script>

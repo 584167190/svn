@@ -1,0 +1,127 @@
+<div id="category_grid"></div>
+<div id="addCategory" title="增加商品分类" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    如果没有勾选分类进行添加，默认添加的是根目录,请核实后再操作？？<br/>
+    商品分类名字:<input id="addName"  type="text"/>
+    <button onclick="toaddCategory()">提交</button>
+</div>
+<div id="editCategory" title="修改分类信息" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    商品信息名字(new):<input id="categoryname"  type="text"/>
+    <button onclick="toeditCategory()">提交</button>
+</div>
+<div id="deleteCategory" title="删除该子分类" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    不能删除有子节点的分类选项!!!<br>
+    <button onclick="todeleteCategory()">确定删除</button>
+</div>
+    <script>
+        function innt_category(){
+            $("#category_grid").treegrid({
+                title:"商品分类管理",
+                method:"get",
+                idField:"id",
+                treeField:"name",
+                columns:[[
+                    {field:"id",checkbox:true},
+                    {field:"name",title:"名称",width:400}
+                ]],
+                toolbar:[
+                    {text:"添加分类",iconCls:"icon-add",handler:function () {add_C();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function(){edit_C();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function(){delete_C();}}
+                ]
+            });
+        };
+        $.get("findAllCategory",function(data){
+            var a = {rows:data};
+            var b = JSON.stringify(a);
+            //正则表达式
+            var p1 = /parentid/g;
+            var c = b.replace(p1,"_parentId");
+            var p2 = /"_parentId":0/g;
+            var d = c.replace(p2,"\"root\":0");
+            var e = JSON.parse(d);
+            $("#category_grid").treegrid("loadData",e);
+
+        });
+        $(innt_category);
+        function add_C(){
+            $("#addCategory").window("open");
+        }
+        function edit_C(){
+            $("#editCategory").window("open");
+        }
+        function delete_C(){
+            $("#deleteCategory").window("open");
+        }
+        //添加新的分类信息
+        function toaddCategory(){
+
+            var addName = $("#addName").val();
+            var addParentid = 0;
+            var category = $("#category_grid").datagrid("getSelected");
+            if(category != null){
+                addParentid = category.id;
+            }
+            $.ajax({
+                url:"toaddCategory",
+                type:"post",
+                data:{name:addName,parentid:addParentid},
+
+                success:function(data){
+//                    innt_category();
+                    $(innt_category);
+                    $("#category_grid").treegrid("reload");
+                    $("#addCategory").window("close");
+                }
+            });
+        }
+        //修改分类信息
+        function toeditCategory() {
+            var category = $("#category_grid").datagrid("getSelected");
+            if(category == null){
+                $.messager.alert("系统提示","没有勾选要修改的对象");
+            } else {
+                var name = $("#categoryname").val();
+                var id = 0;
+                id = category.id;
+                $.ajax({
+                    url:"toeditCategory",
+                    type:"post",
+                    data:{name:name,id:id},
+
+                    success:function(data){
+                         innt_category();
+//                        $(innt_category);
+                        $("#editCategory").window("close");
+                    }
+                });
+            }
+        }
+
+        //删除分类信息
+        function todeleteCategory(){
+            var category = $("#category_grid").datagrid("getSelected");
+
+            if(category == null){
+                $.messager.alert("系统提示","没有勾选要删除的对象");
+            } else {
+                var id = category.id;
+                $.ajax({
+                    url:"deleteCategory",
+                    type:"post",
+                    data:{id:id},
+
+                    success:function(data){
+                        if(data == 1){
+                            $(innt_category);
+                            $("#category_grid").treegrid("reload");
+                            $("#deleteCategory").window("close");
+                        } else {
+                            $.messager.alert("系统提示","不能删除有子节点的分类选项!!!");
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+
+

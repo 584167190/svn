@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.UserDao">
+    <!--查询所有用户-->
+    <select id="findAllUser" resultType="com.test.entity.User">
+        select * from USER
+    </select>
+    <insert id="saveUser" parameterType="com.test.entity.User">
+        insert into user(account,pwd) values(#{account},#{pwd})
+    </insert>
+    <delete id="deleteUser" parameterType="list">
+        delete from user where id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <update id="updateUser" parameterType="com.test.entity.User">
+        <!--update user set account=#{account},pwd=#{pwd} where id=#{id}-->
+        update user u,user_roles ur,roles r
+        set u.account=#{account},ur.rolesid=(select id from roles where name=#{name})
+        where ur.userid=u.id and u.id=#{id}
+    </update>
+    <select id="findUserAndRole" resultType="com.test.entity.User">
+        select u.*,r.name from user u
+        LEFT JOIN user_roles ur
+        ON u.id=ur.userid
+        LEFT JOIN roles r
+        on r.id=ur.rolesid
+    </select>
+    <!--数据总条数-->
+    <select id="getCount" resultType="int">
+        SELECT count(account) from USER
+    </select>
+    <!--user分页-->
+    <select id="userPagination" parameterType="map" resultType="com.test.entity.User">
+        SELECT u.*,r.name from user u
+        left JOIN user_roles ur
+        ON ur.userid=u.id
+        LEFT JOIN roles r
+        ON ur.rolesid=r.id
+        limit #{start},#{size}
+    </select>
+    <select id="login" parameterType="com.test.entity.User" resultType="com.test.entity.User">
+        select * from user where account=#{account} and pwd=#{pwd}
+    </select>
+</mapper>

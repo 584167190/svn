@@ -1,0 +1,124 @@
+<div id="ress_grid"></div>
+<div id="addfu" title="增加父节点" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    父节点:<input id="fuName" name="futext" type="text"/>
+    <button onclick="toaddfu()">提交</button>
+</div>
+<div id="addzi" title="增加子节点" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    子节点:<input id="ziName" name="zitext" type="text"/>
+    <button onclick="toaddzi()">提交</button>
+</div>
+<div id="editName" title="修改节点名" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    节点名字(new):<input id="jiedianname" name="jiedianname" type="text"/>
+    <button onclick="toeditname()">提交</button>
+</div>
+<div id="deleteRes" title="删除节点" class="easyui-window" data-options="closed:true,modal:true" style="width:400px;height:300px;">
+    确定删除该节点(其子节点不删除)???<br>
+    <button onclick="todeleteRess()">确定</button> <button onclick="quxiao()">取消</button>
+</div>
+
+<script>
+    function  ress_init() {
+        $("#ress_grid").treegrid({
+            title:"资源管理",
+//            url:"data.json",
+            method:"get",
+            idField:"id",
+            treeField:"text",
+            columns:[[
+                {field:"id",title:"序号",width:100,checkbox:true},
+                {field:"text",title:"名称",width:400}
+            ]],
+            toolbar:[
+                {text:"添加父节点",iconCls:"icon-add",handler:function(){addfu();}},
+                {text:"添加子节点",iconCls:"icon-add",handler:function(){addzi();}},
+                {text:"修改节点名字",iconCls:"icon-edit",handler:function(){editName();}},
+                {text:"删除节点",iconCls:"icon-remove",handler:function(){deleteRes();}}
+            ]
+        });
+        $.get("findAllRess",function(data){
+            var a = {rows:data};
+            var b = JSON.stringify(a);
+            //正则表达式
+            var p1 = /parentid/g;
+            var c = b.replace(p1,"_parentId");
+            var p2 = /"_parentId":0/g;
+            var d = c.replace(p2,"\"root\":0");
+            var e = JSON.parse(d);
+            $("#ress_grid").treegrid("loadData",e);
+        });
+    }
+    $(ress_init);
+    function addfu(){
+        $("#addfu").window("open");
+    }
+    function addzi(){
+        $("#addzi").window("open");
+    }
+    function editName(){
+        $("#editName").window("open");
+    }
+    function deleteRes(){
+        $("#deleteRes").window("open");
+    }
+    function toaddfu(){
+        var funame = $("#fuName").val();
+        $.ajax({
+            url:"toaddfu",
+            type:"post",
+            data:{text:funame},
+
+            success:function(data){
+                $(ress_init);
+                $("#ress_grid").treegrid("reload");
+                $("#addfu").window("close");
+            }
+        });
+    }
+    function toaddzi(){
+       var ressid = $("#ress_grid").datagrid("getSelected").id;
+       var ziname = $("#ziName").val();
+       $.ajax({
+           url:"toaddzi",
+           type:"post",
+           data:{ressid:ressid,ziname:ziname},
+           success:function(data){
+               $(ress_init);
+               $("#ress_grid").treegrid("reload");
+               $("#addzi").window("close");
+
+           }
+       });
+    }
+    function toeditname(){
+        var ressid = $("#ress_grid").datagrid("getSelected").id;
+        var jiedianname = $("#jiedianname").val();
+        $.ajax({
+            url:"toeditname",
+            type:"post",
+            data:{ressid:ressid,jiedianname:jiedianname},
+            success:function(data){
+                $(ress_init);
+                $("#ress_grid").treegrid("reload");
+                $("#editName").window("close");
+
+            }
+        })
+    }
+    function todeleteRess(){
+        var ressid = $("#ress_grid").datagrid("getSelected").id;
+        $.ajax({
+            url:"todeleteRess",
+            type:"post",
+            data:{ressid:ressid},
+            success:function(data){
+                $(ress_init);
+                $("#ress_grid").treegrid("reload");
+                $("#deleteRes").window("close");
+                alert(data);
+            }
+        })
+    }
+    function quxiao(){
+        $("#deleteRes").window("close");
+    }
+</script>

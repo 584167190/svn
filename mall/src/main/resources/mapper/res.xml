@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.test.dao.ResDao">
+
+    <resultMap id="m1" type="com.test.entity.Res">
+        <result property="id" column="id"/>
+        <result property="text" column="text"/>
+        <result property="parentid" column="parentid"/>
+        <collection property="children" javaType="com.test.entity.Res">
+            <result property="id" column="x_id"/>
+            <result property="text" column="x_text"/>
+            <result property="url" column="x_url"/>
+        </collection>
+    </resultMap>
+    <!--所有资源-->
+    <select id="findAllRes" resultMap="m1">
+        /*select r.text as text ,x.text as x_text,x.url as x_url
+        from ress r
+        left join ress x
+        on x.parentId=r.id
+        where r.parentId=0*/
+        select r.id, r.text as text ,x.id as x_id,x.text as x_text,x.url as x_url
+            from ress r
+            left join ress x
+            on x.parentId=r.id
+            LEFT JOIN roles_ress rs
+            on rs.ressid=r.id
+            LEFT JOIN user_roles ur
+            on ur.rolesid=rs.rolesid
+            where r.parentId=0 and ur.userid=#{useid}
+    </select>
+    
+    <select id="findAllResForRole" resultMap="m1">
+          select r.id,r.text as text,x.id as x_id,x.text as x_text,x.url as x_url
+          from ress r
+          LEFT JOIN ress x
+          on x.parentid=r.id
+          where r.parentid=0
+    </select>
+    <select id="findAllRess" resultType="com.test.entity.Res">
+        SELECT  * from ress
+    </select>
+    <insert id="toaddfu" parameterType="string">
+        INSERT into ress (text,parentid) VALUES (#{text},0)
+    </insert>
+    <insert id="toaddzi" parameterType="map">
+        insert into ress (text,parentid) values (#{text},#{parentid})
+    </insert>
+    <update id="toeditname" parameterType="map">
+        update ress set text = #{text} where id=#{id}
+    </update>
+    <update id="updateparentid" parameterType="map">
+        update ress set parentid=#{parentid} where id=#{id}
+    </update>
+    <delete id="todeleteRess" parameterType="int">
+        delete from ress where id=#{id}
+    </delete>
+    <select id="findRessById" parameterType="int" resultType="com.test.entity.Res">
+        select * from ress where id=#{id}
+    </select>
+    <select id="findRessByParentid" parameterType="int" resultType="com.test.entity.Res">
+        select * from ress where parentid=#{parentid}
+    </select>
+</mapper>

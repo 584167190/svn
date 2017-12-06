@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.dao.CommdityDao">
+    <select id="findAllComms" resultType="com.test.entity.Commodity">
+        select * from commodity
+    </select>
+    
+    <insert id="addComms" parameterType="map">
+        insert into commodity values(#{sku},#{name},#{price},2)
+    </insert>
+    <select id="findCommodityBySku" resultType="com.test.entity.Commodity">
+        SELECT * from commodity where sku=#{sku}
+    </select>
+</mapper>

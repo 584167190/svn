@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/icon.css"/>
+    <link rel="stylesheet" href="css/easyui.css"/>
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <script src="js/jquery.js"></script>
+    <script src="js/easyui.js"></script>
+    <script src="js/easyui-lang-zh_CN.js"></script>
+    <script>
+        function commmdity_init(){
+            $("#commdity_grid").datagrid({
+                title:"商品管理",
+                url:"findAllComms",
+                columns:[[
+                    {field:"sku",checkbox:true},
+                    {field:"name",title:"名称",width:200}
+                ]],
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){
+                        toAddCommodity();
+                    }},
+                    {text:"上架",iconCls:"icon-search",handler:function(){
+                        showCommodity();
+                    }}
+                ]
+            });
+
+        }
+        $(commmdity_init);
+        //上架
+        function showCommodity() {
+            var comm = $("#commdity_grid").datagrid("getSelected");
+            $.get("showCommodity",{sku:comm.sku},function(d){
+                alert(d);
+            });
+        }
+        //添加商品
+        function commodity_save(){
+            var data = new FormData(document.getElementById("form_commodity"));
+            $.ajax({
+                url:"addCommodity",
+                method:"post",
+                data:data,
+                contentType:false,
+                processData:false,
+                success:function(d){
+                    $("#commdity_grid").datagrid("reload");
+                    $("#window_commodity_add").window("close");
+                    alert(d);
+                }
+            });
+        }
+        function toAddCommodity() {
+            $("#window_commodity_add").window("open");
+        }
+    </script>
+</head>
+<body>
+    <div id="commdity_grid"></div>
+    <!--弹出窗口-->
+    <div id="window_commodity_add" class="easyui-window" data-options="closed:true,modal:true" style="padding:30px 30px;width:100%;height:600px;display: flex;flex-flow:column;">
+
+        <form id="form_commodity" class="form-group">
+            <div style="margin-bottom: 20px " class="input-group">
+                <span class="input-group-addon">名称</span>
+                <input id="account" name="name" class="form-control" placeholder="请输入商品名字"/>
+            </div>
+            <div style="margin-bottom: 20px " class="input-group">
+                <span class="input-group-addon">价格</span>
+                <input id="pwd" name="price"  class="form-control"/>
+            </div>
+            <div style="margin-bottom: 20px " class="input-group">
+                <span class="input-group-addon">图片</span>
+                <input   name="f1" type="file" multiple="multiple" class="form-control"/>
+            </div>
+        </form>
+        <div>
+            <button class="btn btn-success btn-block" onclick="commodity_save()">保存</button>
+        </div>
+
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,134 @@
+
+    <div id="role_grid"></div>
+    <div id="window_roles_fenpei" class="easyui-window" data-options="closed:true,modal:true" style="width:300px;height:400px;">
+        <div>
+            <!--权限tree-->
+            <ul id="roles_tree" class="easyui-tree" data-options="url:'findAllResForRole',checkbox:true" >
+
+            </ul>
+        </div>
+        <div>
+            <button onclick="roles_fenpei()">分配</button>
+        </div>
+
+    </div>
+    <script>
+        function init() {
+            $("#roles").datagrid({
+                title:"角色管理",
+                url:"findAllRoles",
+                method:"get",
+                columns:[[
+                    {field:"id",title:"角色编号",checkbox:true},
+                    {field:"name",title:"角色名",width:200},
+                ]],
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){addRoles();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function(){updataRoles();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function(){deleteRoles();}},
+                    {text:"分配权限",iconCls:"icon-search",handler:function(){fenpeiRess();}}
+                ]
+            });
+        }
+        //页面渲染完毕再调用
+        $(init);
+        //点击分配，弹窗
+        function fenpeiRess(){
+            $("#window_roles_fenpei").window("open");
+        }
+        //点击弹窗的button，保存分配
+        function roles_fenpei(){
+            //获取选中的角色
+            var role = $("#roles").datagrid("getSelected");
+            //获取用户分配的权限
+            var ress = $("#roles_tree").tree("getChecked");
+            var arr = [role.id];
+            for(var i = 0 ; i < ress.length ; i ++){
+                arr[i + 1] = ress[i].id;
+            }
+            var json = JSON.stringify(arr);
+            $.ajax({
+                url:"fenpei",
+                method:"post",
+                data:json,
+                contentType:"application/json",
+                success:function(d){
+
+                    $("#window_roles_fenpei").window("close");
+                }
+            });
+
+        }
+
+        function addRoles() {
+            $("#form_roles_add").form("load",{
+                id:0,
+                name:"",
+            });
+            $("#window_roles_add").window("open");
+        }
+        function saveRole() {
+            //提交到saveRole
+            $("#form_roles_add").form("submit",{
+                success:function(d){
+                    $("#roles").datagrid("reload");
+                    $("#window_roles_add").window("close");
+                }
+            });
+        }
+        //删除用户
+        function deleteRoles(){
+            var roles = $("#roles").datagrid("getSelections");
+            var ars = [];
+
+            for (var i=0;i<roles.length;i++){
+                ars[i] = roles[i].id;
+            }
+            /*alert(typeof(ars));*/
+            var json = JSON.stringify(ars);
+            /*alert(typeof(json));*/
+            if(ars.length == 0){
+                $.messager.alert("系统tishi","没有勾选象");
+            } else {
+                $.ajax({
+                    url:"deleteRoles",
+                    method:"post",
+                    data:json,
+                    contentType:"application/json",
+                    success:function(d){
+                        $("#roles").datagrid("reload");
+
+                    }
+                })
+            }
+
+        }
+        //修改用户信息
+        function updataRoles(){
+            var role = $("#roles").datagrid("getSelected");
+            if(role){
+                $("#form_roles_add").form("load",{
+                    id:role.id,
+                    name:role.name,
+                });
+                $("#window_roles_add").window("open");
+            } else {
+                $.messager.alert("系统提示","请选择一条角色数据");
+            }
+
+
+
+        }
+    </script>
+
+<div id="roles"></div>
+<!--弹出窗口-->
+<div id="window_roles_add" class="easyui-window" data-options="closed:true,modal:true" style="width:300px;height:400px;">
+    <form id="form_roles_add" action="saveRoles">
+        <input type="hidden" name="id" />
+        <input name="name" class="textbox"/>
+    </form>
+    <div>
+        <button onclick="saveRole()">保存</button>
+    </div>
+</div>

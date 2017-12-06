@@ -1,0 +1,11 @@
+{
+    "rows":[
+        {"id":1,"text":"系统管理","root":0},
+        {"id":2,"text":"用户管理","_parentId":1},
+        {"id":3,"text":"角色管理","_parentId":1},
+        {"id":4,"text":"资源管理","_parentId":1},
+        {"id":5,"text":"订单管理"},
+        {"id":6,"text":"仓库管理"}
+
+    ]
+}
